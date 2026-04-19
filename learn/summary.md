@@ -65,6 +65,77 @@ randomUUID()
 
 ---
 
+## 非同期処理（async / await）
+
+### なぜ非同期処理が必要か
+
+ファイルI/OやAPIリクエストなどは処理に時間がかかる。同期処理だとその間プログラム全体が止まるが、非同期処理なら待っている間に他の処理を進められる。
+
+### async 関数
+
+`async` を付けた関数は**必ず `Promise` を返す**。
+
+```ts
+// 同期
+const readLogs = (): LogEntry[] => { ... }
+
+// 非同期
+const readLogs = async (): Promise<LogEntry[]> => { ... }
+```
+
+### await
+
+`Promise` の解決を待つ。**`async` 関数の中でのみ使用できる**。
+
+```ts
+const addLog = async (message: string): Promise<void> => {
+  const logs = await readLogs();   // Promise が解決するまで待つ
+  await writeLogs([...logs, entry]);
+};
+```
+
+### Promise\<T\>
+
+非同期処理の結果の型。`T` は解決後の値の型。
+
+| 型 | 意味 |
+|---|---|
+| `Promise<LogEntry[]>` | 解決すると `LogEntry[]` が得られる |
+| `Promise<void>` | 解決しても値はない（戻り値なし） |
+
+### fs/promises
+
+Node.js のファイルAPIには同期版と非同期版がある。
+
+```ts
+// 同期版（処理が終わるまでブロックする）
+import fs from 'fs';
+fs.readFileSync(FILE, 'utf-8');
+
+// 非同期版（Promise を返す）
+import fs from 'fs/promises';
+await fs.readFile(FILE, 'utf-8');
+```
+
+### try/catch でエラーをハンドリング
+
+非同期処理のエラーは `try/catch` でキャッチする。
+
+```ts
+const readLogs = async (): Promise<LogEntry[]> => {
+  try {
+    const raw = await fs.readFile(FILE, 'utf-8');
+    return JSON.parse(raw);
+  } catch {
+    return []; // ファイルが存在しない場合など
+  }
+};
+```
+
+`existsSync` で存在確認 → `readFileSync` で読み込む、という2ステップを1つの `try/catch` にまとめられる。
+
+---
+
 ## TypeScript 独自の構文
 
 ### 型エイリアス
