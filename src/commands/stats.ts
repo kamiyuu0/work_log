@@ -1,7 +1,7 @@
 import { readLogs } from '../storage';
 
-export const statsLogs = (week: boolean): void => {
-  let logs = readLogs();
+export const statsLogs = async (week: boolean): Promise<void> => {
+  let logs = await readLogs();
   if (week) {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
